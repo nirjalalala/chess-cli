@@ -1,0 +1,7 @@
+# Default flags passed to every `bundle exec rspec` run.
+# --require spec_helper  → loads spec/spec_helper.rb automatically before each file
+# --format documentation → prints test descriptions in a readable outline
+# --color                → uses color for pass/fail output in the terminal
+--require spec_helper
+--format documentation
+--color

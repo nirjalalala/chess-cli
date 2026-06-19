@@ -1,0 +1,48 @@
+# GitHub Actions CI workflow.
+# Runs automatically on every push and pull request to the main branch.
+# Two jobs run in parallel: tests (RSpec) and linting (RuboCop).
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: RSpec Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Check out the repository code.
+      - uses: actions/checkout@v4
+
+      # 2. Install the Ruby version we specified in the Gemfile.
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4.6'
+          # bundler-cache: true caches the installed gems between runs,
+          # making subsequent CI runs significantly faster.
+          bundler-cache: true
+
+      # 3. Run the test suite.
+      - name: Run RSpec
+        run: bundle exec rspec
+
+  lint:
+    name: RuboCop Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4.6'
+          bundler-cache: true
+
+      # Run RuboCop in strict mode — exit non-zero if any offense is found.
+      - name: Run RuboCop
+        run: bundle exec rubocop --parallel

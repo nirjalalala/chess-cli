@@ -54,3 +54,10 @@ build-iPhoneSimulator/
 
 # Used by RuboCop. Remote config files pulled in from inherit_from directive.
 # .rubocop-https?--*
+
+# Claude Code guidance file (not part of the project source)
+CLAUDE.md
+
+# Saved game files (but keep the directory itself tracked)
+/saves/*
+!/saves/.gitkeep

@@ -1,0 +1,59 @@
+# RuboCop configuration for chess-cli.
+# Full rule reference: https://docs.rubocop.org
+
+# Load the RSpec-specific ruleset via the plugin system (rubocop-rspec 3.x+).
+plugins:
+  - rubocop-rspec
+
+AllCops:
+  # Target the Ruby version we're using.
+  TargetRubyVersion: 3.4
+  # Ignore generated/vendor directories.
+  Exclude:
+    - 'vendor/**/*'
+    - 'saves/**/*'
+  # "pending" means: new cops added in future RuboCop releases are shown as
+  # warnings but don't cause a failure. Switch to "enable" when ready to adopt them.
+  NewCops: pending
+
+# ── Style preferences ───────────────────────────────────────────────────────
+
+Style/StringLiterals:
+  # Prefer single-quoted strings unless interpolation is needed.
+  EnforcedStyle: single_quotes
+
+Style/FrozenStringLiteralComment:
+  # Require `# frozen_string_literal: true` at the top of every Ruby file.
+  # This is a Ruby performance and immutability best-practice.
+  Enabled: true
+  EnforcedStyle: always
+
+# ── Layout preferences ──────────────────────────────────────────────────────
+
+Layout/LineLength:
+  # 120 chars is a comfortable limit for modern monitors.
+  Max: 120
+
+# ── Metrics — relaxed for a learning project ────────────────────────────────
+
+Metrics/MethodLength:
+  # Allow methods up to 15 lines before RuboCop complains.
+  Max: 15
+
+Metrics/ClassLength:
+  Max: 150
+
+Metrics/BlockLength:
+  # RSpec describe/context blocks are legitimately long — exclude them.
+  Exclude:
+    - 'spec/**/*'
+
+# ── RSpec rules ─────────────────────────────────────────────────────────────
+
+RSpec/ExampleLength:
+  # Allow slightly longer examples during learning.
+  Max: 10
+
+RSpec/MultipleExpectations:
+  # Disable the "one expectation per example" rule — we'll tighten this later.
+  Enabled: false
