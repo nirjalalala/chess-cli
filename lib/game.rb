@@ -47,7 +47,9 @@ class Game
   end
 
   def all_legal_moves(color)
-    pieces_for(color).flat_map { |piece| @validator.legal_moves(piece) }
+    regular = pieces_for(color).flat_map { |piece| @validator.legal_moves(piece) }
+    castling = @validator.legal_castling_moves(color).map { |_, to| to }
+    regular + castling
   end
 
   def checkmate?
@@ -111,12 +113,31 @@ class Game
   def valid_move?(from, to)
     piece = @board.at(from[0], from[1])
     return false unless piece&.color == @current_player
+    return true if @validator.legal_castling_moves(@current_player).include?([from, to])
 
     @validator.legal_moves(piece).include?(to)
   end
 
   def apply_move(from, to)
-    @board.move(from, to)
+    if castling_move?(from, to)
+      apply_castle(from, to)
+    else
+      @board.move(from, to)
+    end
+  end
+
+  def castling_move?(from, to)
+    piece = @board.at(from[0], from[1])
+    piece.is_a?(King) && (to[1] - from[1]).abs == 2
+  end
+
+  def apply_castle(king_from, king_to)
+    rank = king_from[0]
+    king_side = king_to[1] == 6
+    rook_from = [rank, king_side ? 7 : 0]
+    rook_to   = [rank, king_side ? 5 : 3]
+    @board.move(king_from, king_to)
+    @board.move(rook_from, rook_to)
   end
 
   def announce_check

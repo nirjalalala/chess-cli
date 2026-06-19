@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'tmpdir'
+require 'fileutils'
 require 'game'
 
 RSpec.describe Game do
@@ -74,6 +76,22 @@ RSpec.describe Game do
     it 'returns 20 legal moves for white from the starting position' do
       # 8 pawns × 2 moves each + 2 knights × 2 moves each = 20
       expect(game.all_legal_moves(:white).length).to eq(20)
+    end
+
+    context 'when white can castle king-side' do
+      subject(:game) { described_class.new(input: input, output: output, board: bare_board) }
+
+      let(:bare_board) { Board.new }
+
+      before do
+        bare_board.place(King.new(:white, nil), 7, 4)
+        bare_board.place(Rook.new(:white, nil), 7, 7)
+        bare_board.place(King.new(:black, nil), 0, 4)
+      end
+
+      it 'includes the castling destination in the legal move list' do
+        expect(game.all_legal_moves(:white)).to include([7, 6])
+      end
     end
   end
 
@@ -201,6 +219,52 @@ RSpec.describe Game do
       it 'outputs a confirmation message' do
         game.play
         expect(output.string).to include('Game saved')
+      end
+    end
+
+    context 'when white castles king-side' do
+      subject(:game) { described_class.new(input: input, output: output, board: bare_board) }
+
+      let(:bare_board) { Board.new }
+      let(:input) { StringIO.new("e1g1\nquit\n") }
+
+      before do
+        bare_board.place(King.new(:white, nil), 7, 4)
+        bare_board.place(Rook.new(:white, nil), 7, 7)
+        bare_board.place(King.new(:black, nil), 0, 4)
+      end
+
+      it 'moves the king to g1' do
+        game.play
+        expect(game.board.at(7, 6)).to be_a(King)
+      end
+
+      it 'moves the rook to f1' do
+        game.play
+        expect(game.board.at(7, 5)).to be_a(Rook)
+      end
+    end
+
+    context 'when white castles queen-side' do
+      subject(:game) { described_class.new(input: input, output: output, board: bare_board) }
+
+      let(:bare_board) { Board.new }
+      let(:input) { StringIO.new("e1c1\nquit\n") }
+
+      before do
+        bare_board.place(King.new(:white, nil), 7, 4)
+        bare_board.place(Rook.new(:white, nil), 7, 0)
+        bare_board.place(King.new(:black, nil), 0, 4)
+      end
+
+      it 'moves the king to c1' do
+        game.play
+        expect(game.board.at(7, 2)).to be_a(King)
+      end
+
+      it 'moves the rook to d1' do
+        game.play
+        expect(game.board.at(7, 3)).to be_a(Rook)
       end
     end
 

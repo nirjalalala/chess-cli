@@ -65,6 +65,121 @@ RSpec.describe MoveValidator do
     end
   end
 
+  describe '#legal_castling_moves' do
+    let(:black_king) { King.new(:black, nil) }
+
+    before { board.place(black_king, 0, 4) }
+
+    context 'when white can castle king-side' do
+      let(:white_king) { King.new(:white, nil) }
+      let(:white_rook) { Rook.new(:white, nil) }
+
+      before do
+        board.place(white_king, 7, 4)
+        board.place(white_rook, 7, 7)
+      end
+
+      it 'includes the king-side move [e1, g1]' do
+        expect(validator.legal_castling_moves(:white)).to include([[7, 4], [7, 6]])
+      end
+    end
+
+    context 'when white can castle queen-side' do
+      let(:white_king) { King.new(:white, nil) }
+      let(:white_rook) { Rook.new(:white, nil) }
+
+      before do
+        board.place(white_king, 7, 4)
+        board.place(white_rook, 7, 0)
+      end
+
+      it 'includes the queen-side move [e1, c1]' do
+        expect(validator.legal_castling_moves(:white)).to include([[7, 4], [7, 2]])
+      end
+    end
+
+    context 'when the king has already moved' do
+      let(:white_king) { King.new(:white, nil) }
+      let(:white_rook) { Rook.new(:white, nil) }
+
+      before do
+        board.place(white_king, 7, 4)
+        board.place(white_rook, 7, 7)
+        white_king.mark_moved!
+      end
+
+      it 'returns no castling moves' do
+        expect(validator.legal_castling_moves(:white)).to be_empty
+      end
+    end
+
+    context 'when the rook has already moved' do
+      let(:white_king) { King.new(:white, nil) }
+      let(:white_rook) { Rook.new(:white, nil) }
+
+      before do
+        board.place(white_king, 7, 4)
+        board.place(white_rook, 7, 7)
+        white_rook.mark_moved!
+      end
+
+      it 'returns no castling moves' do
+        expect(validator.legal_castling_moves(:white)).to be_empty
+      end
+    end
+
+    context 'when the king is currently in check' do
+      before do
+        board.place(King.new(:white, nil), 7, 4)
+        board.place(Rook.new(:white, nil), 7, 7)
+        board.place(Rook.new(:black, nil), 0, 4)
+      end
+
+      it 'returns no castling moves' do
+        expect(validator.legal_castling_moves(:white)).to be_empty
+      end
+    end
+
+    context 'when a piece occupies the king-side path' do
+      before do
+        board.place(King.new(:white, nil), 7, 4)
+        board.place(Rook.new(:white, nil), 7, 7)
+        board.place(Bishop.new(:white, nil), 7, 5)
+      end
+
+      it 'does not include the king-side castling move' do
+        dests = validator.legal_castling_moves(:white).map { |_, to| to }
+        expect(dests).not_to include([7, 6])
+      end
+    end
+
+    context 'when the king would pass through an attacked square (f1)' do
+      before do
+        board.place(King.new(:white, nil), 7, 4)
+        board.place(Rook.new(:white, nil), 7, 7)
+        board.place(Rook.new(:black, nil), 0, 5)
+      end
+
+      it 'does not include the king-side castling move' do
+        dests = validator.legal_castling_moves(:white).map { |_, to| to }
+        expect(dests).not_to include([7, 6])
+      end
+    end
+
+    context 'when the king would land on an attacked square (g1)' do
+      before do
+        board.place(King.new(:white, nil), 7, 4)
+        board.place(Rook.new(:white, nil), 7, 7)
+        board.place(Rook.new(:black, nil), 0, 6)
+      end
+
+      it 'does not include the king-side castling move' do
+        dests = validator.legal_castling_moves(:white).map { |_, to| to }
+        expect(dests).not_to include([7, 6])
+      end
+    end
+  end
+
   describe '#legal_moves' do
     context 'when no move would leave the king in check' do
       before do
