@@ -9,6 +9,15 @@ class Piece
   def initialize(color, position)
     @color = color
     @position = position
+    @moved = false
+  end
+
+  def moved?
+    @moved
+  end
+
+  def mark_moved!
+    @moved = true
   end
 
   def white?

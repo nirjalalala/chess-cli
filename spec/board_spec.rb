@@ -84,6 +84,11 @@ RSpec.describe Board do
       expect(rook.position).to eq([3, 6])
     end
 
+    it 'marks the moved piece as moved' do
+      board.move([3, 3], [3, 6])
+      expect(board.at(3, 6).moved?).to be(true)
+    end
+
     context 'when a capture occurs' do
       let(:target) { Pawn.new(:black, nil) }
 
@@ -136,6 +141,12 @@ RSpec.describe Board do
       clone = board.deep_clone
       clone.remove(2, 2)
       expect(board.at(2, 2)).to eq(rook)
+    end
+
+    it 'preserves the moved flag on cloned pieces' do
+      rook.mark_moved!
+      clone = board.deep_clone
+      expect(clone.at(2, 2).moved?).to be(true)
     end
   end
 

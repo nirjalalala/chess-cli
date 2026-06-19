@@ -3,15 +3,17 @@
 require_relative 'board'
 require_relative 'display'
 require_relative 'move_validator'
+require_relative 'serializer'
 
 class Game
   attr_reader :board, :current_player
 
-  def initialize(input: $stdin, output: $stdout, board: nil)
+  def initialize(input: $stdin, output: $stdout, board: nil, current_player: :white, save_dir: 'saves')
     @board = board || Board.new.tap(&:setup_initial_position)
     @input = input
     @output = output
-    @current_player = :white
+    @current_player = current_player
+    @save_dir = save_dir
     @validator = MoveValidator.new(@board)
   end
 
@@ -69,10 +71,11 @@ class Game
   def take_turn
     input_str = prompt_for_move
     return false if input_str.downcase == 'quit'
+    return true if handle_save_command(input_str)
 
     coords = parse_move(input_str)
     unless coords && valid_move?(coords[0], coords[1])
-      @output.puts "Invalid move. Enter a move like e2e4, or 'quit' to exit."
+      @output.puts "Invalid move. Enter a move like e2e4, save FILENAME, or 'quit' to exit."
       return true
     end
 
@@ -82,11 +85,27 @@ class Game
   end
 
   def prompt_for_move
-    @output.print "#{@current_player.to_s.capitalize}'s move (e.g. e2e4): "
+    @output.print "#{@current_player.to_s.capitalize}'s move (e.g. e2e4, save FILENAME, quit): "
     raw = @input.gets
     return 'quit' if raw.nil?
 
     raw.strip
+  end
+
+  def handle_save_command(input_str)
+    parts = input_str.split(' ', 2)
+    return false unless parts[0].downcase == 'save'
+
+    filename = parts[1]&.strip
+    if filename.nil? || filename.empty?
+      @output.puts 'Usage: save FILENAME (e.g. save mygame)'
+      return true
+    end
+
+    path = File.join(@save_dir, "#{filename}.json")
+    Serializer.dump(self, path)
+    @output.puts "Game saved to #{path}."
+    true
   end
 
   def valid_move?(from, to)
