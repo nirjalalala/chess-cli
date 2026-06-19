@@ -49,4 +49,10 @@ RSpec.describe Piece do
       expect { piece.symbol }.to raise_error(NotImplementedError)
     end
   end
+
+  describe '#candidate_moves' do
+    it 'raises NotImplementedError — subclasses must implement it' do
+      expect { piece.candidate_moves(nil) }.to raise_error(NotImplementedError)
+    end
+  end
 end
