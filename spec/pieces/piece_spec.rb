@@ -55,4 +55,17 @@ RSpec.describe Piece do
       expect { piece.candidate_moves(nil) }.to raise_error(NotImplementedError)
     end
   end
+
+  describe '#moved?' do
+    it 'returns false for a newly created piece' do
+      expect(piece.moved?).to be(false)
+    end
+  end
+
+  describe '#mark_moved!' do
+    it 'causes moved? to return true' do
+      piece.mark_moved!
+      expect(piece.moved?).to be(true)
+    end
+  end
 end

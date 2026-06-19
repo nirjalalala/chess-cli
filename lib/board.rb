@@ -37,6 +37,7 @@ class Board
     piece = remove(from[0], from[1])
     remove(to[0], to[1])
     place(piece, to[0], to[1])
+    piece.mark_moved!
   end
 
   def find_king(color)
@@ -46,7 +47,13 @@ class Board
 
   def deep_clone
     clone = self.class.new
-    each_square { |piece, row, col| clone.place(piece.class.new(piece.color, nil), row, col) if piece }
+    each_square do |piece, row, col|
+      next unless piece
+
+      new_piece = piece.class.new(piece.color, nil)
+      new_piece.mark_moved! if piece.moved?
+      clone.place(new_piece, row, col)
+    end
     clone
   end
 

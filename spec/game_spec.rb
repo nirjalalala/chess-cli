@@ -184,5 +184,33 @@ RSpec.describe Game do
         expect(output.string).to include('Checkmate')
       end
     end
+
+    context 'when the player saves before quitting' do
+      subject(:game) { described_class.new(input: input, output: output, save_dir: tmpdir) }
+
+      let(:tmpdir) { Dir.mktmpdir }
+      let(:input)  { StringIO.new("save mygame\nquit\n") }
+
+      after { FileUtils.rm_rf(tmpdir) }
+
+      it 'writes a save file' do
+        game.play
+        expect(File.exist?(File.join(tmpdir, 'mygame.json'))).to be(true)
+      end
+
+      it 'outputs a confirmation message' do
+        game.play
+        expect(output.string).to include('Game saved')
+      end
+    end
+
+    context 'when save is entered without a filename' do
+      let(:input) { StringIO.new("save \nquit\n") }
+
+      it 'outputs a usage hint' do
+        game.play
+        expect(output.string).to include('Usage: save FILENAME')
+      end
+    end
   end
 end
