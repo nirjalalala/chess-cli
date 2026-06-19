@@ -312,6 +312,50 @@ RSpec.describe Game do
       end
     end
 
+    context 'when a white pawn reaches the back rank' do
+      subject(:game) { described_class.new(input: input, output: output, board: bare_board) }
+
+      let(:bare_board) { Board.new }
+
+      before do
+        bare_board.place(King.new(:white, nil), 7, 0)
+        bare_board.place(King.new(:black, nil), 2, 7)
+        bare_board.place(Pawn.new(:white, nil), 1, 4)
+      end
+
+      context 'when the player chooses Queen' do
+        let(:input) { StringIO.new("e7e8\nQ\nquit\n") }
+
+        it 'replaces the pawn with a Queen' do
+          game.play
+          expect(game.board.at(0, 4)).to be_a(Queen)
+        end
+
+        it 'announces the promotion' do
+          game.play
+          expect(output.string).to include('Pawn promoted')
+        end
+      end
+
+      context 'when the player chooses Rook' do
+        let(:input) { StringIO.new("e7e8\nR\nquit\n") }
+
+        it 'replaces the pawn with a Rook' do
+          game.play
+          expect(game.board.at(0, 4)).to be_a(Rook)
+        end
+      end
+
+      context 'when the player enters an invalid choice' do
+        let(:input) { StringIO.new("e7e8\nX\nquit\n") }
+
+        it 'defaults to Queen' do
+          game.play
+          expect(game.board.at(0, 4)).to be_a(Queen)
+        end
+      end
+    end
+
     context 'when save is entered without a filename' do
       let(:input) { StringIO.new("save \nquit\n") }
 
