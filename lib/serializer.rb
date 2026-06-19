@@ -22,6 +22,7 @@ class Serializer
     def game_to_h(game)
       {
         'current_player' => game.current_player.to_s,
+        'en_passant_target' => game.board.en_passant_target,
         'squares' => squares_to_a(game.board)
       }
     end
@@ -39,14 +40,20 @@ class Serializer
     end
 
     def game_from_h(data)
+      board = build_board(data['squares'])
+      board.en_passant_target = data['en_passant_target']
+      Game.new(board: board, current_player: data['current_player'].to_sym)
+    end
+
+    def build_board(squares)
       board = Board.new
-      data['squares'].each do |sq|
+      squares.each do |sq|
         piece_class = Object.const_get(sq['type'])
         piece = piece_class.new(sq['color'].to_sym, nil)
         piece.mark_moved! if sq['moved']
         board.place(piece, sq['row'], sq['col'])
       end
-      Game.new(board: board, current_player: data['current_player'].to_sym)
+      board
     end
   end
 end

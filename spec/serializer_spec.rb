@@ -70,5 +70,16 @@ RSpec.describe Serializer do
       described_class.dump(game, path)
       expect(described_class.load(path).board.at(4, 4).moved?).to be(true)
     end
+
+    it 'preserves a non-nil en passant target' do
+      game.board.en_passant_target = [5, 4]
+      described_class.dump(game, path)
+      expect(described_class.load(path).board.en_passant_target).to eq([5, 4])
+    end
+
+    it 'preserves a nil en passant target' do
+      described_class.dump(game, path)
+      expect(described_class.load(path).board.en_passant_target).to be_nil
+    end
   end
 end
