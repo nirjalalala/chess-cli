@@ -12,9 +12,12 @@ class Board
   # The eight piece classes on the back rank, ordered a-file through h-file.
   BACK_RANK = [Rook, Knight, Bishop, Queen, King, Bishop, Knight, Rook].freeze
 
+  attr_accessor :en_passant_target
+
   def initialize
     # Block form is required here: without it every row would share the same array object.
     @grid = Array.new(SIZE) { Array.new(SIZE, nil) }
+    @en_passant_target = nil
   end
 
   def place(piece, row, col)
@@ -47,6 +50,7 @@ class Board
 
   def deep_clone
     clone = self.class.new
+    clone.en_passant_target = @en_passant_target
     each_square do |piece, row, col|
       next unless piece
 

@@ -121,14 +121,33 @@ class Game
   def apply_move(from, to)
     if castling_move?(from, to)
       apply_castle(from, to)
+    elsif en_passant_capture?(from, to)
+      apply_en_passant(from, to)
     else
       @board.move(from, to)
     end
+    update_en_passant_target(from, to)
   end
 
   def castling_move?(from, to)
     piece = @board.at(from[0], from[1])
     piece.is_a?(King) && (to[1] - from[1]).abs == 2
+  end
+
+  def en_passant_capture?(from, to)
+    piece = @board.at(from[0], from[1])
+    piece.is_a?(Pawn) && from[1] != to[1] && @board.at(to[0], to[1]).nil?
+  end
+
+  def apply_en_passant(from, to)
+    @board.move(from, to)
+    # The captured pawn sits on the attacker's starting row, in the destination column.
+    @board.remove(from[0], to[1])
+  end
+
+  def update_en_passant_target(from, to)
+    piece = @board.at(to[0], to[1])
+    @board.en_passant_target = ([(from[0] + to[0]) / 2, from[1]] if piece.is_a?(Pawn) && (to[0] - from[0]).abs == 2)
   end
 
   def apply_castle(king_from, king_to)

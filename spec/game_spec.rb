@@ -222,6 +222,50 @@ RSpec.describe Game do
       end
     end
 
+    context 'when a pawn advances two squares' do
+      subject(:game) { described_class.new(input: input, output: output, board: bare_board) }
+
+      let(:bare_board) { Board.new }
+      let(:input) { StringIO.new("e2e4\nquit\n") }
+
+      before do
+        bare_board.place(King.new(:white, nil), 7, 4)
+        bare_board.place(King.new(:black, nil), 0, 4)
+        bare_board.place(Pawn.new(:white, nil), 6, 4)
+      end
+
+      it 'sets the en passant target to the skipped square' do
+        game.play
+        expect(game.board.en_passant_target).to eq([5, 4])
+      end
+    end
+
+    context 'when white captures en passant' do
+      subject(:game) { described_class.new(input: input, output: output, board: bare_board) }
+
+      let(:bare_board) { Board.new }
+      # White pawn on e5 (3,4), black pawn on d5 (3,3); en passant target is d6 (2,3).
+      let(:input) { StringIO.new("e5d6\nquit\n") }
+
+      before do
+        bare_board.place(King.new(:white, nil), 7, 4)
+        bare_board.place(King.new(:black, nil), 0, 4)
+        bare_board.place(Pawn.new(:white, nil), 3, 4)
+        bare_board.place(Pawn.new(:black, nil), 3, 3)
+        bare_board.en_passant_target = [2, 3]
+      end
+
+      it 'moves the white pawn to d6' do
+        game.play
+        expect(game.board.at(2, 3)).to be_a(Pawn).and(have_attributes(color: :white))
+      end
+
+      it 'removes the captured black pawn from d5' do
+        game.play
+        expect(game.board.at(3, 3)).to be_nil
+      end
+    end
+
     context 'when white castles king-side' do
       subject(:game) { described_class.new(input: input, output: output, board: bare_board) }
 

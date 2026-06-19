@@ -148,6 +148,12 @@ RSpec.describe Board do
       clone = board.deep_clone
       expect(clone.at(2, 2).moved?).to be(true)
     end
+
+    it 'preserves en_passant_target on the clone' do
+      board.en_passant_target = [2, 3]
+      clone = board.deep_clone
+      expect(clone.en_passant_target).to eq([2, 3])
+    end
   end
 
   describe '#setup_initial_position' do

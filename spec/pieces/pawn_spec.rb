@@ -128,6 +128,32 @@ RSpec.describe Pawn do
       end
     end
 
+    context 'when a white pawn can capture en passant to the right' do
+      let(:pawn) { described_class.new(:white, nil) }
+
+      before do
+        board.place(pawn, 3, 3)
+        board.en_passant_target = [2, 4]
+      end
+
+      it 'includes the en passant target square' do
+        expect(pawn.candidate_moves(board)).to include([2, 4])
+      end
+    end
+
+    context 'when the en passant target is not adjacent to the pawn' do
+      let(:pawn) { described_class.new(:white, nil) }
+
+      before do
+        board.place(pawn, 3, 3)
+        board.en_passant_target = [2, 6]
+      end
+
+      it 'does not include the non-adjacent target' do
+        expect(pawn.candidate_moves(board)).not_to include([2, 6])
+      end
+    end
+
     context 'when a black pawn has an enemy piece diagonally ahead (downward)' do
       let(:pawn) { described_class.new(:black, nil) }
 

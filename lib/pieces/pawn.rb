@@ -37,8 +37,11 @@ class Pawn < Piece
       capture_col = col + dc
       next unless on_board?(one_ahead, capture_col)
 
+      dest = [one_ahead, capture_col]
       target = board.at(one_ahead, capture_col)
-      [one_ahead, capture_col] if target && target.color != @color
+      regular_capture = target && target.color != @color
+      en_passant = board.en_passant_target == dest
+      dest if regular_capture || en_passant
     end
   end
 
