@@ -3,6 +3,9 @@
 # spec_helper.rb is loaded before every spec file (because of --require spec_helper in .rspec).
 # Put global RSpec configuration here — things that apply to ALL tests.
 
+# Add lib/ to the load path so specs can `require 'board'` instead of `require_relative '../lib/board'`.
+$LOAD_PATH.unshift(File.expand_path('../lib', __dir__))
+
 RSpec.configure do |config|
   # When you write `expect(x).to eq(y)` instead of the older `x.should eq(y)` syntax,
   # that is the "expect" syntax. Disabling the legacy syntax avoids accidental mixing.

@@ -18,6 +18,10 @@ AllCops:
 
 # ── Style preferences ───────────────────────────────────────────────────────
 
+Style/Documentation:
+  # Relevant for gems (rdoc/yard), not for application code where class names are self-documenting.
+  Enabled: false
+
 Style/StringLiterals:
   # Prefer single-quoted strings unless interpolation is needed.
   EnforcedStyle: single_quotes
