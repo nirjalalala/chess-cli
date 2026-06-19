@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+$LOAD_PATH.unshift File.join(__dir__, '..', 'lib')
+require 'game'
+require 'serializer'
+
+game = ARGV[0] ? Serializer.load(ARGV[0]) : Game.new
+game.play
