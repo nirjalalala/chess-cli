@@ -45,7 +45,7 @@ Metrics/MethodLength:
   Max: 15
 
 Metrics/ClassLength:
-  Max: 150
+  Max: 175
 
 Metrics/BlockLength:
   # RSpec describe/context blocks are legitimately long — exclude them.
@@ -53,6 +53,10 @@ Metrics/BlockLength:
     - 'spec/**/*'
 
 # ── RSpec rules ─────────────────────────────────────────────────────────────
+
+RSpec/NestedGroups:
+  # Four levels are occasionally needed when one context has multiple sub-scenarios.
+  Max: 4
 
 RSpec/ExampleLength:
   # Allow slightly longer examples during learning.

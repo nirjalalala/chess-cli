@@ -82,6 +82,7 @@ class Game
     end
 
     apply_move(coords[0], coords[1])
+    promote_pawn_if_needed(coords[1])
     switch_turns
     true
   end
@@ -127,6 +128,26 @@ class Game
       @board.move(from, to)
     end
     update_en_passant_target(from, to)
+  end
+
+  PROMOTION_PIECES = { 'Q' => Queen, 'R' => Rook, 'B' => Bishop, 'N' => Knight }.freeze
+
+  def promote_pawn_if_needed(to)
+    piece = @board.at(to[0], to[1])
+    return unless piece.is_a?(Pawn) && promotion_rank?(piece.color, to[0])
+
+    new_class = prompt_promotion_choice
+    @board.place(new_class.new(piece.color, nil), to[0], to[1])
+  end
+
+  def promotion_rank?(color, row)
+    (color == :white && row.zero?) || (color == :black && row == 7)
+  end
+
+  def prompt_promotion_choice
+    @output.print 'Pawn promoted! Choose piece (Q/R/B/N): '
+    input = @input.gets&.strip&.upcase
+    PROMOTION_PIECES.fetch(input, Queen)
   end
 
   def castling_move?(from, to)
