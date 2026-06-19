@@ -33,6 +33,23 @@ class Board
     @grid[row][col]
   end
 
+  def move(from, to)
+    piece = remove(from[0], from[1])
+    remove(to[0], to[1])
+    place(piece, to[0], to[1])
+  end
+
+  def find_king(color)
+    each_square { |piece, row, col| return [row, col] if piece.is_a?(King) && piece.color == color }
+    nil
+  end
+
+  def deep_clone
+    clone = self.class.new
+    each_square { |piece, row, col| clone.place(piece.class.new(piece.color, nil), row, col) if piece }
+    clone
+  end
+
   def setup_initial_position
     place_back_rank(:black, 0)
     place_pawns(:black, 1)
@@ -48,5 +65,11 @@ class Board
 
   def place_pawns(color, row)
     SIZE.times { |col| place(Pawn.new(color, nil), row, col) }
+  end
+
+  def each_square
+    @grid.each_with_index do |row_arr, row|
+      row_arr.each_with_index { |piece, col| yield piece, row, col }
+    end
   end
 end

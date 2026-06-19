@@ -64,6 +64,81 @@ RSpec.describe Board do
     end
   end
 
+  describe '#move' do
+    let(:rook) { Rook.new(:white, nil) }
+
+    before { board.place(rook, 3, 3) }
+
+    it 'places the piece on the destination square' do
+      board.move([3, 3], [3, 6])
+      expect(board.at(3, 6)).to eq(rook)
+    end
+
+    it 'clears the source square' do
+      board.move([3, 3], [3, 6])
+      expect(board.at(3, 3)).to be_nil
+    end
+
+    it 'updates position on the moved piece' do
+      board.move([3, 3], [3, 6])
+      expect(rook.position).to eq([3, 6])
+    end
+
+    context 'when a capture occurs' do
+      let(:target) { Pawn.new(:black, nil) }
+
+      before { board.place(target, 3, 6) }
+
+      it 'removes the captured piece from the board' do
+        board.move([3, 3], [3, 6])
+        expect(board.at(3, 6)).to eq(rook)
+      end
+
+      it 'clears the position on the captured piece' do
+        board.move([3, 3], [3, 6])
+        expect(target.position).to be_nil
+      end
+    end
+  end
+
+  describe '#find_king' do
+    it 'returns the position of the white King' do
+      board.place(King.new(:white, nil), 7, 4)
+      expect(board.find_king(:white)).to eq([7, 4])
+    end
+
+    it 'returns the position of the black King' do
+      board.place(King.new(:black, nil), 0, 4)
+      expect(board.find_king(:black)).to eq([0, 4])
+    end
+  end
+
+  describe '#deep_clone' do
+    let(:rook) { Rook.new(:white, nil) }
+
+    before { board.place(rook, 2, 2) }
+
+    it 'returns a different Board object' do
+      expect(board.deep_clone).not_to equal(board)
+    end
+
+    it 'has the same piece type and color at cloned squares' do
+      clone = board.deep_clone
+      expect(clone.at(2, 2)).to be_a(Rook).and(have_attributes(color: :white))
+    end
+
+    it 'does not share piece objects with the original' do
+      clone = board.deep_clone
+      expect(clone.at(2, 2)).not_to equal(rook)
+    end
+
+    it 'changes to the clone do not affect the original' do
+      clone = board.deep_clone
+      clone.remove(2, 2)
+      expect(board.at(2, 2)).to eq(rook)
+    end
+  end
+
   describe '#setup_initial_position' do
     before { board.setup_initial_position }
 
