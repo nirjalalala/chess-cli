@@ -1,6 +1,7 @@
 # chess-cli
 
 A two-player command-line Chess game written in Ruby. Runs entirely in the terminal with Unicode pieces.
+<img width="919" height="399" alt="chess-cli" src="https://github.com/user-attachments/assets/84a55bba-f4c1-4fcd-b712-3de4c9b5cf54" />
 
 ## Features
 
